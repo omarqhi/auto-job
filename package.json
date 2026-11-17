@@ -1,0 +1,13 @@
+{
+  "name": "auto-job-agent",
+  "private": true,
+  "version": "1.0.0",
+  "dependencies": {
+    "exceljs": "^4.4.0",
+    "marked": "^14.1.4"
+  },
+  "scripts": {
+    "test": "node scripts/build-workflows.js && node tests/offline-test.js"
+  },
+  "license": "MIT"
+}

@@ -1,0 +1,470 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Auto Job</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='none' stroke='%23722F37' stroke-width='3' stroke-dasharray='3 2.2'/%3E%3Ccircle cx='16' cy='16' r='6' fill='%23722F37'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=DM+Serif+Display&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="app.css">
+  <link rel="stylesheet" href="avatar/avatar.css">
+  <!-- ?lite turns off the paper grain and header blur: identical look, far cheaper to paint (used for video recording). -->
+  <script>if (/[?&]lite\b/.test(location.search)) document.documentElement.dataset.lite = '';</script>
+  <script>
+    // Look: the burgundy "studio" design (theme.css, chosen 2026-10-28). ?draft=neu-burgundy, neu, neu-charcoal or glass
+    // shows the earlier drafts; ?draft=classic the original blue.
+    const draft = (/[?&]draft=(neu-charcoal|neu-burgundy|neu|glass|classic)(?=&|$)/.exec(location.search) || [])[1];
+    if (!draft) document.write('<link rel="stylesheet" href="theme.css">');
+    else if (draft !== 'classic') {
+      document.documentElement.dataset.draft = draft;
+      document.write('<link rel="stylesheet" href="draft.css">');
+    }
+  </script>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+
+  <div class="shell">
+  <!-- Sidebar: the sections of the dashboard (the same tabs as before, now a vertical rail). -->
+  <nav class="side" role="tablist" aria-label="Sections" aria-orientation="vertical">
+    <span class="side-mark" aria-hidden="true">A</span>
+    <button role="tab" id="tab-apps" aria-controls="panel-apps" aria-selected="true">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-5v-6h-4v6H5a1 1 0 0 1-1-1z"/></svg>
+      <span class="side-label">Overview</span><span class="count" id="appsCount"></span></button>
+    <button role="tab" id="tab-library" aria-controls="panel-library" aria-selected="false" tabindex="-1">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg>
+      <span class="side-label">Job library</span><span class="count" id="libCount"></span></button>
+    <button role="tab" id="tab-prep" aria-controls="panel-prep" aria-selected="false" tabindex="-1">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h14v10H9l-4 4z"/><path d="M9 9h6M9 12h4"/></svg>
+      <span class="side-label">Interview prep</span></button>
+    <button role="tab" id="tab-write" aria-controls="panel-write" aria-selected="false" tabindex="-1">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5.5" width="17" height="13" rx="2"/><path d="m4 7 8 6 8-6"/></svg>
+      <span class="side-label">Emails &amp; letters</span></button>
+    <button role="tab" id="tab-resume" aria-controls="panel-resume" aria-selected="false" tabindex="-1">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3.5h7l4 4V20a.5.5 0 0 1-.5.5h-10.5A.5.5 0 0 1 6.5 20V4a.5.5 0 0 1 .5-.5z"/><path d="M9.5 12h5M9.5 15.5h5"/></svg>
+      <span class="side-label">Resume</span></button>
+    <button role="tab" id="tab-settings" aria-controls="panel-settings" aria-selected="false" tabindex="-1">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 3v2.5M12 18.5V21M3 12h2.5M18.5 12H21M5.6 5.6l1.8 1.8M16.6 16.6l1.8 1.8M5.6 18.4l1.8-1.8M16.6 7.4l1.8-1.8"/></svg>
+      <span class="side-label">Settings</span></button>
+    <span class="side-avatar avatar" aria-hidden="true">OQ</span>
+  </nav>
+
+  <div class="shell-main">
+  <header class="top">
+    <div class="top-inner">
+      <div class="brand">
+        <svg class="mark" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-dasharray="3 2.2"/><circle cx="16" cy="16" r="6" fill="currentColor"/></svg>
+        <div>
+          <p class="brand-name">Auto Job</p>
+          <p class="brand-sub" id="whoami">Your job search, sent daily</p>
+        </div>
+      </div>
+
+      <!-- Searches the job library: press Enter to see matching jobs. -->
+      <form class="search top-search" id="topSearchForm" role="search">
+        <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="9" cy="9" r="6" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="m13.5 13.5 4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        <label class="sr" for="topSearch">Search your jobs</label>
+        <input id="topSearch" type="search" placeholder="Search jobs, companies, cities">
+      </form>
+
+      <div class="controls">
+        <!-- Automation: the pill shows the state at a glance; it opens n8n and the two daily switches. -->
+        <div class="auto">
+          <button class="auto-pill" id="autoPill" type="button" aria-expanded="false" aria-controls="autoPanel" data-state="unknown">
+            <span class="dot" aria-hidden="true"></span><span id="autoLabel">Checking…</span>
+          </button>
+          <div class="auto-panel" id="autoPanel" role="region" aria-label="Automation" hidden>
+            <div class="service" id="service" data-state="unknown">
+              <span class="dot" aria-hidden="true"></span>
+              <span id="serviceLabel">Checking n8n…</span>
+              <button class="btn btn-quiet" id="serviceBtn" type="button" hidden>Start n8n</button>
+            </div>
+            <label class="switch" id="scheduleWrap">
+              <input type="checkbox" id="scheduleToggle" role="switch">
+              <span class="track" aria-hidden="true"><span class="thumb"></span></span>
+              <span class="switch-text"><span id="scheduleLabel">Apply every day at 9:00</span><small id="scheduleHint"></small></span>
+            </label>
+            <label class="switch" id="repliesWrap">
+              <input type="checkbox" id="repliesToggle" role="switch">
+              <span class="track" aria-hidden="true"><span class="thumb"></span></span>
+              <span class="switch-text"><span>Watch employer replies</span><small id="repliesHint"></small></span>
+            </label>
+          </div>
+        </div>
+        <div class="notif">
+          <button class="icon-btn bell" id="bellBtn" type="button" aria-expanded="false" aria-controls="notifPanel" aria-label="Notifications">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M10 20.5a2 2 0 0 0 4 0" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+            <span class="bell-light" id="bellLight" hidden></span>
+          </button>
+          <div class="notif-panel" id="notifPanel" role="region" aria-labelledby="notifTitle" hidden>
+            <h2 id="notifTitle">Notifications</h2>
+            <ul id="notifList"></ul>
+          </div>
+        </div>
+        <span class="avatar top-avatar" aria-hidden="true">OQ</span>
+      </div>
+    </div>
+  </header>
+
+  <main id="main">
+    <!-- Employer replies from the last 14 days: the one thing on this page that needs you soonest. -->
+    <section class="replies" id="replies" aria-labelledby="repliesTitle" hidden>
+      <h2 id="repliesTitle">Employers replied</h2>
+      <ul id="repliesList"></ul>
+    </section>
+    <!-- Asymmetric bento: the postmark gets a tall tray of its own; the run, the funnel and the facts sit around it. -->
+    <section class="bento" aria-labelledby="deskTitle">
+      <div class="cell cell-post"><div class="core post">
+        <button class="postmark" id="runBtn" type="button" aria-describedby="runHint">
+          <svg class="postmark-ring" viewBox="0 0 220 220" aria-hidden="true">
+            <circle class="perf" cx="110" cy="110" r="104"/>
+            <circle class="track" cx="110" cy="110" r="92"/>
+            <circle class="progress" id="ringProgress" cx="110" cy="110" r="92" pathLength="100"/>
+          </svg>
+          <span class="postmark-face">
+            <span class="postmark-title" id="runTitle">Apply now</span>
+            <span class="postmark-sub" id="runSub">Finds, tailors and sends</span>
+          </span>
+        </button>
+        <p class="run-hint" id="runHint"></p>
+        <p class="sr" id="runLive" role="status" aria-live="polite"></p>
+      </div></div>
+
+      <div class="cell cell-route"><div class="core">
+        <h1 id="deskTitle">Today's run</h1>
+        <ol class="steps" id="steps">
+          <li data-step="find"><span class="step-name">Find new jobs</span><span class="step-detail">LinkedIn and Indeed, last 24 hours</span></li>
+          <li data-step="pick"><span class="step-name">Keep the best</span><span class="step-detail" id="pickDetail">100k+ PKR a month or a senior role, Lahore or remote, no repeats</span></li>
+          <li data-step="tailor"><span class="step-name">Tailor your resume</span><span class="step-detail" id="tailorDetail">Hiring panel review for each job</span></li>
+          <li data-step="send"><span class="step-name">Send and record</span><span class="step-detail">Email the hiring manager, add to your tracker</span></li>
+        </ol>
+        <p class="li-note" id="liNote" role="status" hidden></p>
+      </div></div>
+
+      <div class="cell cell-flow"><div class="core">
+        <div class="ledger-head">
+          <h2 id="ledgerTitle">Your search so far</h2>
+          <div class="seg" role="group" aria-label="Time range">
+            <button type="button" data-range="week" aria-pressed="false">This week</button>
+            <button type="button" data-range="all" aria-pressed="true">All time</button>
+          </div>
+        </div>
+        <ol class="flow" id="flow">
+          <li><span class="n" id="sFound">–</span><span class="l">Jobs found</span><span class="bar" aria-hidden="true"><i id="bFound"></i></span><span class="sub" id="sFoundSub"></span></li>
+          <li><span class="n" id="sMatched">–</span><span class="l">Matched your filters</span><span class="bar" aria-hidden="true"><i id="bMatched"></i></span><span class="sub" id="sMatchedSub"></span></li>
+          <li><span class="n" id="sApplied">–</span><span class="l">Applied</span><span class="bar" aria-hidden="true"><i id="bApplied"></i></span><span class="sub" id="sAppliedSub"></span></li>
+          <li><span class="n" id="sReplies">–</span><span class="l">Replies</span><span class="bar" aria-hidden="true"><i id="bReplies"></i></span><span class="sub" id="sRepliesSub"></span></li>
+        </ol>
+      </div></div>
+
+      <div class="cell cell-facts"><div class="core">
+        <dl class="facts">
+          <div><dt>Applied today</dt><dd id="factToday">–</dd></div>
+          <div><dt>Last run</dt><dd id="factLast">Not run yet</dd></div>
+          <div class="budget">
+            <dt>Apify this month</dt>
+            <dd><span id="factBudget">–</span><span class="meter" aria-hidden="true"><span id="budgetBar"></span></span></dd>
+          </div>
+        </dl>
+      </div></div>
+
+      <div class="cell cell-split"><div class="core split" id="split">
+        <h2 class="cell-title">How each application was sent</h2>
+        <div class="split-bar" role="img" id="splitBar" aria-label="No applications yet">
+          <span class="split-t" id="splitT"><b id="splitTLabel"></b></span><span class="split-m" id="splitM"><b id="splitMLabel"></b></span>
+        </div>
+        <p class="split-legend">
+          <span><i class="key key-t"></i><b id="sTailored">0</b> tailored by the hiring panel</span>
+          <span><i class="key key-m"></i><b id="sAsIs">0</b> master resume as-is (score <span id="sThreshold">80</span>+)</span>
+          <span class="pending"><b id="sPending">0</b> waiting in the pending pool</span>
+        </p>
+        <div class="daily">
+          <p class="daily-title">Applications, last 14 days</p>
+          <div class="daily-bars" id="dailyBars" role="img" aria-label="No applications yet"></div>
+        </div>
+      </div></div>
+    </section>
+
+    <section class="panel" id="panel-apps" role="tabpanel" aria-labelledby="tab-apps">
+      <h2 class="panel-title">Applications</h2>
+      <div class="filters" role="group" aria-label="Filter by status" id="filters"></div>
+      <div class="table-wrap">
+        <table class="apps">
+          <thead><tr><th scope="col">Status</th><th scope="col">Match</th><th scope="col">Role</th><th scope="col" class="num">Pay a month</th><th scope="col">Applied</th><th scope="col"><span class="sr">Actions</span></th></tr></thead>
+          <tbody id="appsBody"></tbody>
+        </table>
+      </div>
+      <div class="empty" id="appsEmpty" hidden>
+        <h2>No applications yet</h2>
+        <p>Press Apply now to find today's jobs. Each one you apply to shows up here with its tailored resume.</p>
+      </div>
+    </section>
+
+    <section class="panel" id="panel-library" role="tabpanel" aria-labelledby="tab-library" hidden>
+      <details class="sheet add-job" id="addJob">
+        <summary>Add a job you found</summary>
+        <form id="addJobForm" novalidate>
+          <p class="help">Paste the full job post, or add a screenshot of it. It is scored like every other job. At the as-is score or higher it is sent with your master resume straight away. Below that, the hiring panel rewrites your resume and you decide.</p>
+          <div class="field">
+            <label for="addText">Job description</label>
+            <textarea id="addText" rows="7" placeholder="Paste the whole post: title, company, location, pay, duties, requirements, how to apply"></textarea>
+          </div>
+          <div class="add-row">
+            <div class="field">
+              <label for="addImage">Or a screenshot of the post</label>
+              <input id="addImage" type="file" accept="image/png,image/jpeg,image/webp">
+            </div>
+            <div class="field">
+              <label for="addUrl">Job link <span class="muted">(optional)</span></label>
+              <input id="addUrl" type="text" inputmode="url" placeholder="https://...">
+            </div>
+          </div>
+          <div class="actions">
+            <button class="btn btn-primary" type="submit" id="addBtn">Read and score</button>
+            <p class="add-status" id="addStatus" role="status" aria-live="polite"></p>
+          </div>
+        </form>
+      </details>
+      <div class="lib-tools">
+        <div class="filters" role="group" aria-label="Filter jobs by status" id="libFilters"></div>
+        <label class="search"><span class="sr">Search jobs</span>
+          <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="9" cy="9" r="6" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="m13.5 13.5 4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+          <input id="libSearch" type="search" placeholder="Search title, company or city">
+        </label>
+      </div>
+      <div class="table-wrap" id="libWrap">
+        <table class="apps lib">
+          <thead><tr><th scope="col">Match</th><th scope="col">Role</th><th scope="col" class="num">Pay a month</th><th scope="col">What happened</th><th scope="col">Found</th></tr></thead>
+          <tbody id="libBody"></tbody>
+        </table>
+      </div>
+      <div class="empty" id="libEmpty" hidden>
+        <h2 id="libEmptyTitle">The library is empty</h2>
+        <p id="libEmptyText">Every job a run finds is recorded here with its match score, including the ones that were skipped and why.</p>
+      </div>
+    </section>
+
+    <section class="panel" id="panel-prep" role="tabpanel" aria-labelledby="tab-prep" hidden>
+      <div class="prep-grid">
+        <form class="sheet prep-form" id="prepForm" novalidate>
+          <div class="sheet-head">
+            <h2>Get ready for an interview</h2>
+            <p class="muted">Paste any job description. You get a match score for your resume, a 30-second intro and the questions they will likely ask, each with an answer to say, checked by a hiring panel first. About 5 to 8 minutes.</p>
+          </div>
+          <div class="prep-body">
+            <div class="field">
+              <label for="prepJd">Job description</label>
+              <textarea id="prepJd" rows="10" placeholder="Paste the whole job post: title, company, responsibilities, requirements"></textarea>
+            </div>
+            <div class="field">
+              <label for="prepRole">Role and company <span class="muted">(optional)</span></label>
+              <input id="prepRole" type="text" placeholder="e.g. HR Manager, Packages Limited">
+            </div>
+            <fieldset class="field prep-resume">
+              <legend>Resume to score and answer from</legend>
+              <label class="check"><input type="radio" name="prepResume" value="master" checked> My master resume</label>
+              <label class="check"><input type="radio" name="prepResume" value="upload"> Another resume</label>
+              <input id="prepFile" type="file" accept=".pdf,.docx,.md,.txt" aria-label="Choose a resume file (PDF, Word, .md or .txt)" hidden>
+            </fieldset>
+          </div>
+          <div class="actions">
+            <button class="btn btn-primary" type="submit" id="prepBtn">Prepare me</button>
+            <button class="btn" type="button" id="prepQuestionsBtn">Answer application-form questions</button>
+            <p class="add-status" id="prepStatus" role="status" aria-live="polite"></p>
+          </div>
+        </form>
+        <div class="prep-side">
+          <h2 class="prep-list-title">Your interview preps</h2>
+          <ul class="prep-list" id="prepList"></ul>
+        </div>
+      </div>
+      <article class="sheet prep-view" id="prepView" hidden>
+        <div class="sheet-head prep-view-head"><h2 id="prepViewTitle"></h2><p class="muted" id="prepViewMeta"></p></div>
+        <div class="doc panel-doc" id="prepViewDoc"></div>
+      </article>
+    </section>
+
+    <section class="panel" id="panel-write" role="tabpanel" aria-labelledby="tab-write" hidden>
+      <div class="prep-grid">
+        <form class="sheet prep-form" id="writeForm" novalidate>
+          <div class="sheet-head">
+            <h2>Write an email or cover letter</h2>
+            <p class="muted">Written in your own plain voice from your real experience. About a minute.</p>
+          </div>
+          <div class="prep-body">
+            <fieldset class="field prep-resume">
+              <legend>What do you need?</legend>
+              <div class="filters write-kinds" id="writeKinds" role="radiogroup" aria-label="What to write">
+                <label class="filter"><input type="radio" name="writeKind" value="cover" checked> Cover letter</label>
+                <label class="filter"><input type="radio" name="writeKind" value="apply"> Application email</label>
+                <label class="filter"><input type="radio" name="writeKind" value="reply"> Reply to an employer</label>
+                <label class="filter"><input type="radio" name="writeKind" value="questions"> Application questions</label>
+                <label class="filter"><input type="radio" name="writeKind" value="followup"> Follow-up</label>
+                <label class="filter"><input type="radio" name="writeKind" value="thanks"> Thank-you after interview</label>
+              </div>
+            </fieldset>
+            <div class="field" id="writeContextField" hidden>
+              <label for="writeContext" id="writeContextLabel">Their email</label>
+              <textarea id="writeContext" rows="6"></textarea>
+            </div>
+            <div class="field">
+              <label for="writeJd">Job description <span class="muted" id="writeJdHint"></span></label>
+              <textarea id="writeJd" rows="8" placeholder="Paste the whole job post"></textarea>
+            </div>
+            <div class="field">
+              <label for="writeRole">Role and company <span class="muted">(optional)</span></label>
+              <input id="writeRole" type="text" placeholder="e.g. HR Manager, Packages Limited">
+            </div>
+            <fieldset class="field prep-resume">
+              <legend>Resume to write from</legend>
+              <label class="check"><input type="radio" name="writeResume" value="master" checked> My master resume</label>
+              <label class="check"><input type="radio" name="writeResume" value="upload"> Another resume</label>
+              <input id="writeFile" type="file" accept=".pdf,.docx,.md,.txt" aria-label="Choose a resume file (PDF, Word, .md or .txt)" hidden>
+            </fieldset>
+          </div>
+          <div class="actions">
+            <button class="btn btn-primary" type="submit" id="writeBtn">Write it</button>
+            <p class="add-status" id="writeStatus" role="status" aria-live="polite"></p>
+          </div>
+        </form>
+        <div class="prep-side">
+          <h2 class="prep-list-title">Your emails and letters</h2>
+          <ul class="prep-list" id="writeList"></ul>
+        </div>
+      </div>
+      <article class="sheet prep-view" id="writeView" hidden>
+        <div class="sheet-head prep-view-head"><h2 id="writeViewTitle"></h2><p class="muted" id="writeViewMeta"></p></div>
+        <div class="drawer-actions write-actions" id="writeActions"></div>
+        <div class="doc"><p class="letter-subject" id="writeSubject"></p><div class="letter write-body" id="writeBody"></div></div>
+      </article>
+    </section>
+
+    <section class="panel" id="panel-resume" role="tabpanel" aria-labelledby="tab-resume" hidden>
+      <div class="resume-grid">
+        <div class="sheet resume-doc">
+          <div class="sheet-head">
+            <h2>Current master resume</h2>
+            <p class="muted" id="masterMeta"></p>
+          </div>
+          <article class="doc" id="masterDoc"></article>
+        </div>
+
+        <div class="resume-side">
+          <label class="drop" id="drop" tabindex="0">
+            <input type="file" id="fileInput" accept=".docx,.pdf,.md,.txt" hidden>
+            <svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 31V11m0 0-7 7m7-7 7 7" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M10 29v6a4 4 0 0 0 4 4h20a4 4 0 0 0 4-4v-6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
+            <span class="drop-title">Upload a new master resume</span>
+            <span class="drop-sub">Drop a Word, PDF or text file, or click to choose. You'll check it before it replaces the current one.</span>
+          </label>
+
+          <div class="sheet candidate" id="candidate" hidden>
+            <div class="sheet-head">
+              <h2 id="candTitle">New resume</h2>
+              <p class="muted" id="candMeta"></p>
+            </div>
+            <article class="doc" id="candDoc"></article>
+            <div class="actions" id="candActions">
+              <button class="btn btn-primary" id="candAccept" type="button">Use this resume</button>
+              <button class="btn" id="candDiscard" type="button">Discard</button>
+            </div>
+          </div>
+
+          <div class="note">
+            <h3>What the tailoring uses</h3>
+            <p>Every application starts from this master resume. The hiring panel only rewords and reorders what is here; it never adds employers, dates or numbers. Facts missing here stay missing in every tailored version.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel" id="panel-settings" role="tabpanel" aria-labelledby="tab-settings" hidden>
+      <form class="sheet settings" id="settingsForm" novalidate>
+        <fieldset>
+          <legend>What to search for</legend>
+          <div class="field">
+            <label for="kwInput">Job titles</label>
+            <div class="chips" id="kwChips">
+              <input id="kwInput" type="text" placeholder="Add a title and press Enter" autocomplete="off">
+            </div>
+            <p class="help">Each title is searched on LinkedIn and Indeed every day. Up to 8.</p>
+          </div>
+          <div class="field">
+            <label for="location">LinkedIn search area</label>
+            <input id="location" type="text">
+            <p class="help">Where to search. Keep this country-wide so remote roles listed in other cities are still found.</p>
+          </div>
+          <div class="field">
+            <label for="cities">Apply only in these cities</label>
+            <input id="cities" type="text" placeholder="Lahore">
+            <p class="help">Separate cities with commas. Jobs elsewhere are skipped, with the reason shown in the job library. Leave empty to allow any city.</p>
+          </div>
+          <label class="check"><input type="checkbox" id="allowRemote"> Also apply to remote jobs anywhere</label>
+          <div class="field">
+            <label for="rssFeeds">Google Alerts feed links</label>
+            <textarea id="rssFeeds" rows="3" placeholder="https://www.google.com/alerts/feeds/..."></textarea>
+            <p class="help">One link per line. At google.com/alerts, create an alert, set "Deliver to" to RSS feed, then copy the feed link here.</p>
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend>What counts as a good job</legend>
+          <div class="row2">
+            <div class="field">
+              <label for="minPay">Minimum pay a month (PKR)</label>
+              <input id="minPay" type="number" inputmode="numeric" min="10000" step="5000">
+              <p class="help">Listed pay below this is skipped. Senior roles with no pay listed are kept.</p>
+            </div>
+            <div class="field">
+              <label for="targetPay">Target pay a month (PKR)</label>
+              <input id="targetPay" type="number" inputmode="numeric" min="10000" step="5000">
+              <p class="help">Jobs at or above this go first.</p>
+            </div>
+          </div>
+          <div class="field narrow">
+            <label for="asIs">Send master resume as-is at score</label>
+            <input id="asIs" type="number" inputmode="numeric" min="50" max="101">
+            <p class="help">Jobs scoring this or higher (out of 100) skip tailoring. Set 101 to tailor every job.</p>
+          </div>
+          <div class="field narrow">
+            <label for="minScore">Minimum match score</label>
+            <input id="minScore" type="number" inputmode="numeric" min="0" max="100">
+            <p class="help">Jobs scoring below this (out of 100) are skipped as not relevant, with the reason shown in the job library.</p>
+          </div>
+          <div class="field narrow">
+            <label for="cap">Applications a day</label>
+            <input id="cap" type="number" inputmode="numeric" min="0" max="40">
+            <p class="help">0 applies to every relevant job (safety limit 40). Tailored jobs use about 9 Claude requests each; 80+ matches use 1.</p>
+          </div>
+        </fieldset>
+        <div class="actions">
+          <button class="btn btn-primary" type="submit">Save settings</button>
+          <span class="form-msg" id="settingsMsg" role="status"></span>
+        </div>
+      </form>
+    </section>
+  </main>
+  </div>
+  </div>
+
+  <div class="scrim" id="scrim" hidden></div>
+  <aside class="drawer" id="drawer" aria-hidden="true" aria-labelledby="drawerTitle" role="dialog" aria-modal="true">
+    <div class="drawer-head">
+      <div>
+        <p class="drawer-company" id="drawerCompany"></p>
+        <h2 id="drawerTitle"></h2>
+        <p class="muted" id="drawerMeta"></p>
+      </div>
+      <button class="icon-btn" id="drawerClose" type="button" aria-label="Close">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+    <div class="drawer-actions" id="drawerActions"></div>
+    <div class="drawer-body" id="drawerBody"></div>
+  </aside>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="avatar/avatar.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

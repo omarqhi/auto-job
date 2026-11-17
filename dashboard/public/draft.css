@@ -1,0 +1,193 @@
+/* Design drafts, loaded only with ?draft=neu or ?draft=glass (see index.html). The normal dashboard is untouched.
+   Palette: Cosmic Latte #B7AB9A, Mocha Cream #E8DCC6, Deep Burgundy #722F37.
+   html:root[...] outranks app.css's dark-mode blocks, so each draft is one committed look in any OS theme. */
+
+/* ============================================================ 1. NEUMORPHISM: soft cream clay, raised and pressed */
+html:root[data-draft="neu"] {
+  --paper: #E8DCC6; --sheet: #E8DCC6;
+  --ink: #3B2A27; --muted: #6B5D4F;
+  --line: #D6C9B2; --line-strong: #B7AB9A;
+  --stamp: #722F37; --stamp-soft: #E2CBC2;
+  --amber: #8A5A12; --amber-soft: #EFDDBB;
+  --green: #2E6B47; --green-soft: #D6E0C8;
+  --red: #9E2B25; --red-soft: #EFD2C8;
+  --chart-t: #722F37; --chart-m: #7A6A50;
+  --fill: #722F37; --on-fill: #F7EFE3;          /* solid burgundy surfaces and the text on them */
+  --hover: rgba(183, 171, 154, .2);
+  --neu-dark: rgba(140, 124, 102, .55);
+  --neu-light: rgba(255, 251, 243, .95);
+  --raise: 8px 8px 18px var(--neu-dark), -8px -8px 18px var(--neu-light);
+  --raise-sm: 4px 4px 10px var(--neu-dark), -4px -4px 10px var(--neu-light);
+  --press: inset 4px 4px 9px var(--neu-dark), inset -4px -4px 9px var(--neu-light);
+  --shadow: var(--raise); --shadow-soft: var(--raise);
+  --glass: #E8DCC6; --tray: transparent; --tray-line: transparent; --core-hi: 0 0 0 transparent;
+  --r-lg: 26px;
+  color-scheme: light;
+}
+[data-draft^="neu"] body::after { display: none; }
+[data-draft^="neu"] .top-inner { background: var(--paper); backdrop-filter: none; border: 0; box-shadow: var(--raise); border-radius: 22px; }
+[data-draft^="neu"] .cell { background: none; box-shadow: none; padding: 0; }
+[data-draft^="neu"] .core { background: var(--paper); box-shadow: var(--raise); border-radius: var(--r-lg); }
+[data-draft^="neu"] .post { background: var(--paper); }
+[data-draft^="neu"] .postmark { background: var(--paper); box-shadow: 14px 14px 30px var(--neu-dark), -14px -14px 30px var(--neu-light); }
+[data-draft^="neu"] .postmark-face { border: 0; box-shadow: var(--press); }
+[data-draft^="neu"] .postmark-ring .track { stroke: var(--line); }
+
+[data-draft^="neu"] .btn { border: 0; background: var(--paper); box-shadow: var(--raise-sm); border-radius: 14px; }
+[data-draft^="neu"] .btn:hover { box-shadow: var(--raise); }
+[data-draft^="neu"] .btn:active:not(:disabled) { box-shadow: var(--press); transform: none; }
+html:root[data-draft^="neu"] .btn-primary { background: var(--fill); color: var(--on-fill); border-radius: 999px; box-shadow: var(--raise-sm); }
+[data-draft^="neu"] .icon-btn:hover { background: none; box-shadow: var(--raise-sm); }
+
+[data-draft^="neu"] .switch .track { background: var(--paper); box-shadow: var(--press); }
+[data-draft^="neu"] .switch input:checked + .track { background: var(--fill); }
+[data-draft^="neu"] .switch .thumb { background: var(--paper); box-shadow: 2px 2px 5px var(--neu-dark); }
+
+[data-draft^="neu"] .seg { border: 0; background: var(--paper); box-shadow: var(--press); border-radius: 14px; padding: 4px; gap: 4px; }
+[data-draft^="neu"] .seg button { border-radius: 10px; }
+[data-draft^="neu"] .seg button + button { border-left: 0; }
+[data-draft^="neu"] .seg button[aria-pressed="true"] { background: var(--paper); color: var(--stamp); box-shadow: var(--raise-sm); }
+[data-draft^="neu"] .filter { border: 0; background: var(--paper); box-shadow: var(--raise-sm); }
+[data-draft^="neu"] .filter[aria-pressed="true"] { background: var(--paper); color: var(--stamp); box-shadow: var(--press); }
+[data-draft^="neu"] .tabs { box-shadow: none; gap: 10px; padding: 6px 4px; }
+[data-draft^="neu"] .tabs button { border-bottom: 0; border-radius: 14px; padding: 10px 16px; }
+[data-draft^="neu"] .tabs button[aria-selected="true"] { color: var(--stamp); box-shadow: var(--press); }
+[data-draft^="neu"] .count { background: var(--paper); box-shadow: var(--press); }
+
+[data-draft^="neu"] .table-wrap, [data-draft^="neu"] .sheet, [data-draft^="neu"] .empty, [data-draft^="neu"] .settings {
+  background: var(--paper); border: 0; box-shadow: var(--raise); border-radius: var(--r-lg); margin: 12px 6px; }
+[data-draft^="neu"] .apps tbody tr:hover td { background: var(--hover); }
+[data-draft^="neu"] .search, [data-draft^="neu"] .chips, [data-draft^="neu"] .drop,
+[data-draft^="neu"] .field input[type="text"], [data-draft^="neu"] .field input[type="number"], [data-draft^="neu"] .field textarea {
+  border: 0; background: var(--paper); box-shadow: var(--press); border-radius: 12px; }
+[data-draft^="neu"] .drop:hover, [data-draft^="neu"] .drop[data-over="true"] { background: var(--paper); box-shadow: var(--press), 0 0 0 2px var(--stamp); }
+
+[data-draft^="neu"] .score { box-shadow: var(--raise-sm); }
+[data-draft^="neu"] .score::before { background: var(--paper); }
+[data-draft^="neu"] .steps li::before { border: 0; background: var(--paper); box-shadow: var(--raise-sm); }
+[data-draft^="neu"] .steps li[data-status="active"]::before { box-shadow: var(--press); }
+[data-draft^="neu"] .flow .bar, [data-draft^="neu"] .meter { height: 7px; border-radius: 4px; background: var(--paper); box-shadow: var(--press); }
+[data-draft^="neu"] .flow .bar i { background: var(--fill); opacity: 1; }
+html:root[data-draft^="neu"] .steps li[data-status="done"]::before { background: var(--fill); color: var(--on-fill); }
+[data-draft^="neu"] .split-bar { height: 32px; padding: 4px; border-radius: 12px; background: var(--paper); box-shadow: var(--press); }
+[data-draft^="neu"] .split-bar span { border-radius: 8px; }
+html:root[data-draft^="neu"] .split-bar b { color: var(--on-fill); }
+
+[data-draft^="neu"] .drawer { background: var(--paper); }
+[data-draft^="neu"] .letter, [data-draft^="neu"] .lib tr.detail td { background: var(--paper); }
+[data-draft^="neu"] .letter { box-shadow: var(--press); border-left: 0; border-radius: 14px; }
+[data-draft^="neu"] .callout { box-shadow: var(--press); background: var(--paper); border-radius: 14px; }
+
+/* ---- 1b. Same neumorphism in Charcoal Grey #2A2A2A, Moonlit Silver #C0C0C0, Deep Burgundy #722F37.
+   Burgundy text on charcoal would be unreadable, so burgundy is used for solid fills and silver for text accents. */
+html:root[data-draft="neu-charcoal"] {
+  --paper: #2A2A2A; --sheet: #2A2A2A;
+  --ink: #E2E2E2; --muted: #A3A3A3;
+  --line: #3A3A3A; --line-strong: #6E6E6E;
+  --stamp: #C0C0C0; --stamp-soft: #3A3A3A;
+  --amber: #E3AE5C; --amber-soft: #3B3226;
+  --green: #74C495; --green-soft: #26362C;
+  --red: #EC8A83; --red-soft: #3D2928;
+  --chart-t: #722F37; --chart-m: #5E5E5E;
+  --fill: #722F37; --on-fill: #F1E9EA;
+  --hover: rgba(192, 192, 192, .07);
+  --neu-dark: rgba(0, 0, 0, .55);
+  --neu-light: rgba(78, 78, 78, .55);
+  --raise: 8px 8px 18px var(--neu-dark), -8px -8px 18px var(--neu-light);
+  --raise-sm: 4px 4px 10px var(--neu-dark), -4px -4px 10px var(--neu-light);
+  --press: inset 4px 4px 9px var(--neu-dark), inset -4px -4px 9px var(--neu-light);
+  --shadow: var(--raise); --shadow-soft: var(--raise);
+  --glass: #2A2A2A; --tray: transparent; --tray-line: transparent; --core-hi: 0 0 0 transparent;
+  --r-lg: 26px;
+  color-scheme: dark;
+}
+/* ---- 1c. Same neumorphism in the glass draft's colors: Deep Burgundy surface, Mocha Cream text and fills, Cosmic Latte. */
+html:root[data-draft="neu-burgundy"] {
+  --paper: #722F37; --sheet: #722F37;
+  --ink: #F6EEE1; --muted: #DCCAC0;
+  --line: #84404A; --line-strong: #B7AB9A;
+  --stamp: #E8DCC6; --stamp-soft: #84404A;
+  --amber: #F2C27B; --amber-soft: #6A3A2E;
+  --green: #8FD8AE; --green-soft: #4F3A36;
+  --red: #FFA49C; --red-soft: #7E3A3F;
+  --chart-t: #E8DCC6; --chart-m: #B7AB9A;
+  --fill: #E8DCC6; --on-fill: #5A1F27;
+  --hover: rgba(232, 220, 198, .08);
+  --neu-dark: rgba(38, 8, 12, .55);
+  --neu-light: rgba(168, 86, 96, .45);
+  --raise: 8px 8px 18px var(--neu-dark), -8px -8px 18px var(--neu-light);
+  --raise-sm: 4px 4px 10px var(--neu-dark), -4px -4px 10px var(--neu-light);
+  --press: inset 4px 4px 9px var(--neu-dark), inset -4px -4px 9px var(--neu-light);
+  --shadow: var(--raise); --shadow-soft: var(--raise);
+  --glass: #722F37; --tray: transparent; --tray-line: transparent; --core-hi: 0 0 0 transparent;
+  --r-lg: 26px;
+  color-scheme: dark;
+}
+/* Dark drafts: the Apply now face is the one solid-color focal point. */
+[data-draft="neu-charcoal"] .postmark-face, [data-draft="neu-burgundy"] .postmark-face { background: var(--fill); color: var(--on-fill); box-shadow: var(--press), inset 0 0 0 1px rgba(0, 0, 0, .25); }
+[data-draft="neu-charcoal"] .postmark-sub { color: rgba(241, 233, 234, .78); }
+[data-draft="neu-burgundy"] .postmark-sub { color: rgba(90, 31, 39, .8); }
+[data-draft="neu-charcoal"] .postmark-ring .progress, [data-draft="neu-burgundy"] .postmark-ring .progress { stroke: var(--fill); }
+
+/* ============================================================ 2. GLASSMORPHISM: frosted cream panes over a burgundy night */
+html:root[data-draft="glass"] {
+  --paper: #3A1419; --sheet: rgba(232, 220, 198, .10);
+  --ink: #F6EEE1; --muted: #D6C8B3;
+  --line: rgba(232, 220, 198, .18); --line-strong: rgba(232, 220, 198, .36);
+  --stamp: #E8DCC6; --stamp-soft: rgba(232, 220, 198, .16);
+  --amber: #F2C27B; --amber-soft: rgba(242, 194, 123, .16);
+  --green: #8FD8AE; --green-soft: rgba(143, 216, 174, .16);
+  --red: #FFA49C; --red-soft: rgba(255, 164, 156, .16);
+  --chart-t: #E8DCC6; --chart-m: #B7AB9A;
+  --pane: rgba(232, 220, 198, .09);
+  --pane-edge: rgba(232, 220, 198, .24);
+  --pane-shadow: inset 0 1px 0 rgba(255, 250, 240, .2), 0 22px 50px -24px rgba(12, 2, 4, .7);
+  --blur: blur(20px) saturate(1.3);
+  --shadow: var(--pane-shadow); --shadow-soft: var(--pane-shadow);
+  --glass: var(--pane); --tray: transparent; --tray-line: transparent; --core-hi: inset 0 1px 0 rgba(255, 250, 240, .2);
+  color-scheme: dark;
+}
+[data-draft="glass"] body {
+  background:
+    radial-gradient(38% 45% at 12% 8%, rgba(183, 171, 154, .55), transparent 70%),
+    radial-gradient(42% 50% at 88% 18%, rgba(160, 70, 82, .7), transparent 70%),
+    radial-gradient(50% 45% at 55% 95%, rgba(232, 220, 198, .22), transparent 70%),
+    linear-gradient(160deg, #2E0F13 0%, #722F37 55%, #3E161B 100%);
+  background-attachment: fixed;
+}
+[data-draft="glass"] body::after { display: none; }
+[data-draft="glass"] .top-inner, [data-draft="glass"] .core, [data-draft="glass"] .table-wrap,
+[data-draft="glass"] .sheet, [data-draft="glass"] .empty, [data-draft="glass"] .settings {
+  background: var(--pane); backdrop-filter: var(--blur); -webkit-backdrop-filter: var(--blur);
+  border: 1px solid var(--pane-edge); box-shadow: var(--pane-shadow); }
+[data-draft="glass"] .cell { background: none; box-shadow: none; padding: 0; }
+[data-draft="glass"] .core { border-radius: var(--r-lg); }
+[data-draft="glass"] .post { background: radial-gradient(120% 70% at 50% 42%, rgba(232, 220, 198, .14), transparent 62%), var(--pane); }
+[data-draft="glass"] .postmark { background: rgba(232, 220, 198, .12); border: 1px solid var(--pane-edge); backdrop-filter: blur(10px); box-shadow: var(--pane-shadow); }
+
+[data-draft="glass"] .btn { background: rgba(232, 220, 198, .10); border-color: var(--pane-edge); color: var(--ink); }
+[data-draft="glass"] .btn:hover { background: rgba(232, 220, 198, .18); border-color: rgba(232, 220, 198, .5); }
+html:root[data-draft="glass"] .btn-primary { background: #E8DCC6; border-color: #E8DCC6; color: #5A1F27; }
+[data-draft="glass"] .icon-btn:hover { background: rgba(232, 220, 198, .12); }
+[data-draft="glass"] .switch .track { background: rgba(232, 220, 198, .25); }
+[data-draft="glass"] .switch input:checked + .track { background: #E8DCC6; }
+[data-draft="glass"] .switch input:checked + .track .thumb { background: #722F37; }
+[data-draft="glass"] .seg, [data-draft="glass"] .filter { background: rgba(232, 220, 198, .08); border-color: var(--pane-edge); }
+[data-draft="glass"] .seg button[aria-pressed="true"], [data-draft="glass"] .filter[aria-pressed="true"] { background: #E8DCC6; border-color: #E8DCC6; color: #5A1F27; }
+[data-draft="glass"] .count { background: rgba(232, 220, 198, .16); }
+[data-draft="glass"] .tabs { box-shadow: inset 0 -1px 0 var(--pane-edge); }
+
+[data-draft="glass"] .search, [data-draft="glass"] .chips, [data-draft="glass"] .drop,
+[data-draft="glass"] .field input[type="text"], [data-draft="glass"] .field input[type="number"], [data-draft="glass"] .field textarea {
+  background: rgba(20, 4, 7, .22); border-color: var(--pane-edge); color: var(--ink); }
+[data-draft="glass"] .apps tbody tr:hover td { background: rgba(232, 220, 198, .07); }
+[data-draft="glass"] .score::before { background: #4A1C22; }
+[data-draft="glass"] .steps li::before { background: transparent; }
+html:root[data-draft="glass"] .steps li[data-status="done"]::before { color: #5A1F27; }
+[data-draft="glass"] .flow .bar i { background: #E8DCC6; }
+html:root[data-draft="glass"] .split-bar b { color: #3B1A20; }
+[data-draft="glass"] .drawer { background: rgba(52, 18, 23, .88); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); border-left: 1px solid var(--pane-edge); }
+[data-draft="glass"] .chip { background: rgba(232, 220, 198, .16); }
+/* ?lite with a draft: drop the blur, keep the look */
+[data-draft="glass"][data-lite] .top-inner, [data-draft="glass"][data-lite] .core, [data-draft="glass"][data-lite] .table-wrap,
+[data-draft="glass"][data-lite] .sheet, [data-draft="glass"][data-lite] .settings { backdrop-filter: none; background: rgba(74, 28, 34, .78); }

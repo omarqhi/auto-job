@@ -1,0 +1,86 @@
+{
+  "candidate": {
+    "name": "Your Name",
+    "email": "you@example.com",
+    "phone": "+00-000-000-0000",
+    "linkedin": "linkedin.com/in/your-profile",
+    "city": "Lahore",
+    "masterResume": "resume/master-resume.md",
+    "degreeNote": ""
+  },
+  "search": {
+    "keywords": [
+      "HR Manager",
+      "Head of HR",
+      "HR Business Partner",
+      "HR Operations Manager",
+      "Talent Acquisition"
+    ],
+    "linkedinLocation": "Pakistan",
+    "indeedCountry": "pk",
+    "indeedLocation": "",
+    "linkedinPerRun": 40,
+    "indeedPerRun": 40
+  },
+  "sources": {
+    "googleSearch": {
+      "enabled": true,
+      "dateRange": "d3",
+      "queries": [
+        "(\"HR Manager\" OR \"Head of HR\" OR \"HR Business Partner\" OR \"HR Operations Manager\" OR \"Talent Acquisition Manager\") job Lahore -intern -junior -trainee -site:linkedin.com -site:indeed.com",
+        "site:rozee.pk (\"HR Manager\" OR \"Head of HR\" OR \"HR Business Partner\" OR \"Talent Acquisition\") Lahore -inurl:jsearch",
+        "(\"HR Manager\" OR \"Head of People\" OR \"People Operations Manager\" OR \"HR Business Partner\" OR \"Talent Acquisition Manager\") remote (\"anywhere\" OR \"worldwide\" OR \"work from anywhere\" OR \"Pakistan\") -intern -junior -site:linkedin.com -site:indeed.com"
+      ],
+      "rotateQueries": [
+        "site:himalayas.app (\"HR Manager\" OR \"People Operations\" OR \"HR Business Partner\" OR \"Talent Acquisition\" OR \"Head of People\")",
+        "(site:remotive.com OR site:weworkremotely.com OR site:remoteok.com) (\"HR Manager\" OR \"People Operations\" OR \"HR Business Partner\" OR \"Talent Acquisition\" OR \"Head of People\") -junior"
+      ]
+    },
+    "linkedinPosts": {
+      "enabled": true,
+      "queries": [
+        "hiring HR Manager Lahore",
+        "hiring HR remote Pakistan"
+      ],
+      "maxPostsPerQuery": 8
+    },
+    "alertsRss": [],
+    "emailAlerts": {
+      "enabled": true,
+      "gmailQuery": "newer_than:2d (from:rozee.pk OR from:mustakbil.com OR from:glassdoor.com OR from:bayt.com OR from:brightspyre.com OR from:jobz.pk OR from:googlealerts-noreply@google.com OR subject:\"job alert\")"
+    },
+    "maxExtractPerRun": 30
+  },
+  "filters": {
+    "minMonthlyPkr": 100000,
+    "targetMonthlyPkr": 200000,
+    "usdToPkr": 280,
+    "seniorTitlePattern": "\\b(senior|sr\\.?|lead|principal|staff|head|manager|director|architect|vp|vice president|chief|talent acquisition specialist|ta specialist)\\b",
+    "seniorLevels": [
+      "Mid-Senior level",
+      "Director",
+      "Executive"
+    ],
+    "excludeTitlePattern": "\\b(intern|internship|trainee|junior|jr\\.?|fresh graduate)\\b",
+    "allowedCities": [
+      "Lahore"
+    ],
+    "allowRemote": true,
+    "restrictedTitlePattern": "\\(\\s*female\\s*\\)|\\bfemales?\\s+only\\b|\\bwomen\\s+only\\b|\\bonly\\s+females?\\b|\\bfemale\\s+candidates?\\b"
+  },
+  "matching": {
+    "minScore": 70,
+    "sendAsIsAt": 80
+  },
+  "limits": {
+    "maxApplicationsPerDay": 0,
+    "safetyCapPerDay": 40,
+    "pendingDays": 14,
+    "apifyMonthlyBudgetUsd": 3,
+    "apifyStopAtUsd": 2.8
+  },
+  "paths": {
+    "tracker": "tracker/applications.xlsx",
+    "applications": "applications"
+  }
+}

@@ -1,0 +1,115 @@
+/* Robot avatar sitting on top of the Apply-now disc, legs over its face. Absolute, so the card layout does not move. */
+#runBtn { position: relative; overflow: visible; }
+.bot { position: absolute; inset: 0; z-index: 3; pointer-events: none; }
+.bot-svg {
+  position: absolute; left: 50px; top: -148px; width: 161px; height: 235px; overflow: visible;
+  filter: drop-shadow(0 8px 10px rgba(10, 0, 3, .35)); transform-origin: 40% 66%;
+}
+.bot-caption {
+  position: absolute; right: calc(100% + 10px); bottom: 2px; padding: 4px 12px; border-radius: 999px;
+  font: 600 12px/1.3 var(--text, system-ui); white-space: nowrap;
+  color: var(--mint, #5FD3A6); background: rgba(95, 211, 166, .12); border: 1px solid rgba(95, 211, 166, .35);
+}
+.bot:is([data-state="tailor"], [data-state="send"]) .bot-caption { color: var(--gold, #E3AE57); background: rgba(227, 174, 87, .14); border-color: rgba(227, 174, 87, .4); }
+
+/* Limbs rotate at the shoulder / knee (SVG user units) */
+.bot-arm, .bot-shin, .bot-head { transform-box: view-box; transition: transform .6s cubic-bezier(.4, 1.4, .5, 1); }
+.bot-arm-l { transform-origin: 60px 126px; transform: rotate(14deg); }
+.bot-arm-r { transform-origin: 144px 126px; transform: rotate(-4deg); }
+.bot-shin-b { transform-origin: 136px 234px; }
+.bot-shin-f { transform-origin: 190px 236px; }
+.bot-head { transform-origin: 102px 104px; }
+.bot:is([data-state="search"], [data-state="review"], [data-state="tailor"], [data-state="send"]) .bot-arm-r { transform: rotate(-135deg); }
+.bot:is([data-state="review"], [data-state="tailor"]) .bot-head { transform: rotate(7deg); }
+
+/* Props in the raised hand */
+.bot-prop { opacity: 0; transition: opacity .35s .15s; }
+.bot[data-state="search"] .bot-prop[data-s~="search"],
+.bot[data-state="review"] .bot-prop[data-s~="review"],
+.bot[data-state="tailor"] .bot-prop[data-s~="tailor"],
+.bot[data-state="send"] .bot-prop[data-s~="send"],
+.bot[data-state="success"] .bot-prop[data-s~="success"] { opacity: 1; }
+.bot-scan, .bot-spark { opacity: 0; }
+
+/* Eyes */
+.bot-eye { fill: #5FD3A6; transform-box: fill-box; transform-origin: center; animation: bot-blink 4.5s infinite; }
+.bot-eyes { transform-box: view-box; transition: transform .4s; }
+.bot-happy { opacity: 0; }
+.bot[data-state="success"] .bot-eyes { opacity: 0; }
+.bot[data-state="success"] .bot-happy { opacity: 1; }
+.bot:is([data-state="tailor"], [data-state="send"]) .bot-eye { fill: #E3AE57; }
+@keyframes bot-blink { 0%, 92%, 100% { transform: scaleY(1); } 95% { transform: scaleY(.1); } }
+
+/* Idle: breathing, blinking, feet swinging */
+.bot[data-state="idle"] .bot-svg { animation: bot-breathe 4s ease-in-out infinite; }
+.bot[data-state="idle"] .bot-shin-f { animation: bot-swing 2.6s ease-in-out infinite; }
+.bot[data-state="idle"] .bot-shin-b { animation: bot-swing 2.6s ease-in-out -1.3s infinite; }
+.bot[data-state="idle"] .bot-head { animation: bot-nod 4s ease-in-out infinite; }
+@keyframes bot-breathe { 50% { transform: translateY(-2px); } }
+@keyframes bot-swing { 0%, 100% { transform: rotate(-6deg); } 50% { transform: rotate(8deg); } }
+@keyframes bot-nod { 50% { transform: rotate(-3deg); } }
+
+/* 1. Searching: magnifier sweeps, head and eyes look around */
+.bot[data-state="search"] .bot-arm-r, .bot[data-state="search"] .bot-prop[data-s~="search"] { animation: bot-sweep 2.4s ease-in-out infinite; }
+.bot-prop[data-s~="search"] { transform-box: view-box; transform-origin: 144px 126px; }
+.bot[data-state="search"] .bot-head { animation: bot-look 2.4s ease-in-out infinite; }
+.bot[data-state="search"] .bot-eyes { animation: bot-eyes-look 2.4s ease-in-out infinite; }
+@keyframes bot-sweep { 0%, 100% { transform: rotate(-128deg); } 50% { transform: rotate(-142deg); } }
+.bot[data-state="search"] .bot-prop[data-s~="search"] { animation-name: bot-sweep-prop; }
+@keyframes bot-sweep-prop { 0%, 100% { transform: rotate(7deg); } 50% { transform: rotate(-7deg); } }
+@keyframes bot-look { 0%, 100% { transform: rotate(-5deg); } 50% { transform: rotate(6deg); } }
+@keyframes bot-eyes-look { 0%, 100% { transform: translateX(-5px); } 50% { transform: translateX(5px); } }
+
+/* 2. Reading the job: squint, eyes scan line by line, scan bar on the page */
+.bot[data-state="review"] .bot-eye { animation: none; transform: scaleY(.6); }
+.bot[data-state="review"] .bot-eyes { animation: bot-read 1.6s steps(1) infinite; }
+.bot[data-state="review"] .bot-scan { animation: bot-scan 1.8s linear infinite; }
+@keyframes bot-read { 0% { transform: translate(-4px, -1px); } 25% { transform: translate(0, -1px); } 50% { transform: translate(4px, 1px); } 75% { transform: translate(0, 1px); } }
+@keyframes bot-scan { 0% { transform: translateY(0); opacity: 0; } 15%, 85% { opacity: .9; } 100% { transform: translateY(50px); opacity: 0; } }
+
+/* 3. Tailoring: taps the page, lines turn gold one by one, sparkles */
+.bot[data-state="tailor"] .bot-arm-r { animation: bot-tap .8s ease-in-out infinite; }
+.bot[data-state="tailor"] .bot-line { animation: bot-rewrite 2.6s calc(var(--i) * .3s) infinite; }
+.bot[data-state="tailor"] .bot-spark { transform-box: fill-box; transform-origin: center; animation: bot-twinkle 1.4s calc(var(--i) * .45s) infinite; }
+.bot[data-state="tailor"] .bot-svg { animation: bot-work 1.6s ease-in-out infinite; }
+@keyframes bot-tap { 0%, 100% { transform: rotate(-135deg); } 50% { transform: rotate(-129deg); } }
+@keyframes bot-rewrite { 0%, 15% { fill: #CFB8AC; } 30%, 70% { fill: #E3AE57; } 100% { fill: #CFB8AC; } }
+@keyframes bot-twinkle { 0%, 100% { opacity: 0; transform: scale(.3) rotate(0); } 50% { opacity: 1; transform: scale(1) rotate(45deg); } }
+@keyframes bot-work { 50% { filter: drop-shadow(0 8px 10px rgba(10, 0, 3, .35)) drop-shadow(0 0 10px rgba(227, 174, 87, .4)); } }
+
+/* 4. Sending: throws the envelope, which flies off, again and again */
+.bot[data-state="send"] .bot-arm-r { animation: bot-throw 1.8s ease-in-out infinite; }
+.bot[data-state="send"] .bot-env { transform-box: fill-box; transform-origin: center; animation: bot-fly 1.8s ease-in infinite; }
+@keyframes bot-throw { 0%, 100% { transform: rotate(-135deg); } 35% { transform: rotate(-150deg); } 55% { transform: rotate(-112deg); } }
+@keyframes bot-fly {
+  0%, 50% { transform: none; opacity: 1; }
+  85% { transform: translate(46px, -52px) rotate(-18deg) scale(.5); opacity: 0; }
+  86%, 100% { transform: none; opacity: 0; }
+}
+
+/* Applied: both arms up, happy eyes, kicking feet, check and confetti */
+.bot[data-state="success"] .bot-arm-r { transform: rotate(-150deg); }
+.bot[data-state="success"] .bot-arm-l { transform: rotate(150deg); }
+.bot[data-state="success"] .bot-svg { animation: bot-bounce .5s ease-in-out 3; }
+.bot[data-state="success"] .bot-shin-f { animation: bot-swing .5s ease-in-out infinite; }
+.bot[data-state="success"] .bot-shin-b { animation: bot-swing .5s ease-in-out -.25s infinite; }
+.bot[data-state="success"] .bot-check { transform-box: fill-box; transform-origin: center; animation: bot-pop .5s cubic-bezier(.3, 1.6, .5, 1); }
+@keyframes bot-bounce { 50% { transform: translateY(-8px); } }
+@keyframes bot-pop { 0% { transform: scale(0); } 100% { transform: scale(1); } }
+
+.bot-confetti { position: absolute; left: 50%; top: -60px; pointer-events: none; }
+.bot-confetti i {
+  position: absolute; width: 6px; height: 10px; border-radius: 1px; opacity: 0;
+  animation: bot-burst 1.5s ease-out forwards;
+}
+@keyframes bot-burst {
+  0% { opacity: 1; transform: translate(0, 0) rotate(0); }
+  100% { opacity: 0; transform: translate(var(--x), var(--y)) rotate(540deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bot *, .bot .bot-svg { animation: none !important; transition: none !important; }
+}
+/* Not enough room: the caption would leave the card on narrow screens; the robot needs ~150px above the disc */
+@media (max-width: 1280px) { .bot-caption { display: none; } }
+@media (max-height: 700px), (max-width: 860px) { .bot { display: none; } }

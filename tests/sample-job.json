@@ -1,0 +1,12 @@
+{
+  "source": "test",
+  "jobId": "sample-1",
+  "title": "HR Manager",
+  "company": "Sample Tech (Test)",
+  "location": "Lahore, Pakistan",
+  "url": "https://example.com/jobs/hr-manager",
+  "applyUrl": "https://example.com/jobs/hr-manager",
+  "salaryRaw": "PKR 250,000 - 300,000 / month",
+  "contactEmail": "",
+  "description": "We are a 120-person software services company in Lahore looking for an HR Manager to lead our people function.\n\nResponsibilities:\n- Own full-cycle recruitment for engineering and business roles; partner with department heads on workforce planning\n- Manage onboarding, offboarding, attendance, leave and monthly payroll inputs\n- Handle employee relations: grievances, disciplinary matters and performance improvement plans\n- Run the annual performance management cycle and KPI frameworks\n- Develop and maintain HR policies, SOPs and the employee handbook in line with Pakistani labour law\n- Maintain HRIS data and produce monthly HR reports and dashboards\n\nRequirements:\n- 6+ years of HR experience, at least 2 in a managerial role\n- Experience in IT/software or BPO/call center environments\n- Strong knowledge of payroll, compensation and performance management\n- Experience with an HRIS (Zoho People, BambooHR or similar)\n- Excellent communication in English and Urdu\n- Bachelor's degree; HR certification is a plus"
+}
