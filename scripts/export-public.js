@@ -21,7 +21,7 @@ const FILES = ['README.md', 'SETUP.md', 'LICENSE', '.gitignore', 'package.json',
 // folder -> files inside it to leave out (path relative to the folder, forward slashes)
 const DIRS = {
   dashboard: /^(state\.json|demo-[^/]*|public\/film\.html)$/,                          // run state, generated demo data, the film driver
-  scripts: /^((check|install)-(studio|ponytail)\.ps1|record-[^/]*\.mjs)$/,             // tooling only this PC has
+  scripts: /^((check|install)-(studio|ponytail)\.ps1|record-[^/]*\.mjs|push-public\.ps1)$/,   // tooling only this PC has
   tests: null, docs: null, '.claude/skills/interview-prep': null,
 };
 const USER_SKILLS = ['hiring-panel', 'humanizer'];   // third-party (MIT), installed in ~/.claude/skills; shipped so tailoring works after setup.ps1
@@ -61,6 +61,10 @@ const terms = [
   ...(fs.existsSync(denyFile) ? fs.readFileSync(denyFile, 'utf8').split(/\r?\n/).map(l => l.trim()).filter(Boolean).map(esc) : []),
 ].filter(t => t.replace(/\\b/g, '').length >= 4);
 const personal = new RegExp(terms.join('|'), 'i');
+// Public addresses that may contain a term (the GitHub username is part of the repository's own links): export-allow.txt, one per line.
+const allowFile = path.join(ROOT, 'export-allow.txt');
+const allowed = fs.existsSync(allowFile) ? fs.readFileSync(allowFile, 'utf8').split(/\r?\n/).map(l => l.trim()).filter(Boolean) : [];
+const strip = line => allowed.reduce((l, a) => l.split(a).join(''), line);
 
 const hits = [];
 let count = 0;
@@ -70,7 +74,7 @@ let count = 0;
     if (e.isDirectory()) { if (e.name !== '.git') walk(f); continue; }
     count++;
     fs.readFileSync(f, 'latin1').split('\n').forEach((line, i) => {
-      const m = personal.exec(line);
+      const m = personal.exec(strip(line));
       if (m) hits.push(`${path.relative(target, f)}:${i + 1}  "${m[0]}"`);
     });
   }

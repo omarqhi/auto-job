@@ -19,3 +19,4 @@ demo-video/
 .claude/*
 !.claude/skills/
 export-deny.txt
+export-allow.txt
