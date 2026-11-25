@@ -38,6 +38,8 @@ Your resume, applications and job library stay on your PC. The only things that 
 4. Follow **One-time setup** in [SETUP.md](SETUP.md): the n8n account, the three credentials, and importing the workflows.
 5. Double-click **`Auto Job.cmd`**. The dashboard opens at http://localhost:5680.
 
+**Want it online instead of on your PC?** [ORACLE.md](ORACLE.md) sets it up on Oracle Cloud's free server, so it runs while your PC is off.
+
 **Just want to look?** Run `node dashboard/seed-demo.js`, then `node dashboard/demo.js`, and open http://localhost:5681. It shows sample data and sends nothing.
 
 ## Make it yours

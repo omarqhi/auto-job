@@ -43,9 +43,14 @@ function run(cmd, args, opts = {}) {
       (err, stdout, stderr) => resolve({ code: err ? (err.code ?? 1) : 0, stdout: String(stdout), stderr: String(stderr) }));
   });
 }
-const ps = (script, extraEnv = {}) => spawn('powershell.exe',
-  ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', path.join(ROOT, script)],
-  { cwd: ROOT, windowsHide: true, env: { ...process.env, ...extraEnv } });
+// Windows runs the .ps1 script; the Linux server runs the .sh script of the same name.
+const ps = (script, extraEnv = {}) => IS_WIN
+  ? spawn('powershell.exe', ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', path.join(ROOT, script)],
+    { cwd: ROOT, windowsHide: true, env: { ...process.env, ...extraEnv } })
+  : spawn('bash', [path.join(ROOT, script.replace(/\.ps1$/i, '.sh'))], { cwd: ROOT, env: { ...process.env, ...extraEnv } });
+const PYTHON = IS_WIN ? 'python' : 'python3';
+// On the Linux server n8n runs as a systemd user service (server/install.sh), so it is started and stopped through it.
+const N8N_SERVICE = 'autojob-n8n';
 
 function n8nHealthy() {
   return new Promise(resolve => {
@@ -66,6 +71,7 @@ async function waitFor(fn, ms) { const end = Date.now() + ms; while (Date.now() 
 const N8N_START_TIMEOUT = 5 * 60 * 1000;
 let n8nStartingSince = null;
 async function n8nProcessRunning() {
+  if (!IS_WIN) return (await run('systemctl', ['--user', 'is-active', N8N_SERVICE])).stdout.trim() === 'active';
   const r = await run('powershell.exe', ['-NoProfile', '-Command',
     "@(Get-CimInstance Win32_Process -Filter \"Name='node.exe'\" | Where-Object { $_.CommandLine -match 'n8n[\\\\/]bin[\\\\/]n8n.*start' }).Count"], { timeout: 20000 });
   return Number(r.stdout.trim()) > 0;
@@ -80,7 +86,8 @@ async function startN8n({ wait = false } = {}) {
   if (await n8nHealthy()) return true;
   if (!n8nStartingSince) {
     n8nStartingSince = Date.now();
-    if (!(await n8nProcessRunning())) {
+    if (!IS_WIN) await run('systemctl', ['--user', 'start', N8N_SERVICE]);
+    else if (!(await n8nProcessRunning())) {
       const p = spawn('powershell.exe', ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-WindowStyle', 'Hidden', '-File', path.join(ROOT, 'start-n8n.ps1')],
         { cwd: ROOT, detached: true, stdio: 'ignore', windowsHide: true });
       p.unref();
@@ -89,6 +96,7 @@ async function startN8n({ wait = false } = {}) {
   return wait ? waitFor(n8nHealthy, N8N_START_TIMEOUT) : 'starting';
 }
 async function stopN8n() {
+  if (!IS_WIN) { await run('systemctl', ['--user', 'stop', N8N_SERVICE], { timeout: 60000 }); return waitFor(async () => !(await n8nHealthy()), 20000); }
   const pid = await n8nPid();
   if (pid) await run('taskkill', ['/PID', pid, '/T', '/F']);
   return waitFor(async () => !(await n8nHealthy()), 20000);
@@ -399,7 +407,7 @@ async function saveResumeChoice(folder, resumeUpload) {
   fs.writeFileSync(path.join(folder, 'resume' + ext), Buffer.from(up[1], 'base64'));
   if (ext !== '.docx') return { resume: './resume' + ext, label: name };
   // Claude cannot read Word files: turn it into text first (same converter as the resume upload)
-  const r = await run('python', ['-I', path.join(ROOT, 'scripts', 'docx2txt.py'), path.join(folder, 'resume.docx')], { env: { PYTHONIOENCODING: 'utf-8' } });
+  const r = await run(PYTHON, ['-I', path.join(ROOT, 'scripts', 'docx2txt.py'), path.join(folder, 'resume.docx')], { env: { PYTHONIOENCODING: 'utf-8' } });
   if (r.code !== 0 || !r.stdout.trim()) throw new Error('Could not read that Word file. Try saving it as PDF.');
   fs.writeFileSync(path.join(folder, 'resume.txt'), r.stdout, 'utf8');
   return { resume: './resume.txt (lines start with [style] tags from Word; ignore them)', label: name };
@@ -685,7 +693,7 @@ async function convertResume(file, name) {
     } else {
       let source = file;
       if (ext === '.docx') {
-        const r = await run('python', ['-I', path.join(ROOT, 'scripts', 'docx2txt.py'), file], { env: { PYTHONIOENCODING: 'utf-8' } });
+        const r = await run(PYTHON, ['-I', path.join(ROOT, 'scripts', 'docx2txt.py'), file], { env: { PYTHONIOENCODING: 'utf-8' } });
         if (r.code !== 0) throw new Error('Could not read the .docx file: ' + r.stderr.slice(-200));
         source = file + '.txt';
         fs.writeFileSync(source, r.stdout, 'utf8');

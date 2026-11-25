@@ -55,10 +55,12 @@ function findFile(dir, name) {
 }
 
 function edgePath() {
+  if (process.env.CHROME_PATH && fs.existsSync(process.env.CHROME_PATH)) return process.env.CHROME_PATH;   // set on the server
   const c = [
     'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe',
     'C:\\Program Files\\Microsoft\\Edge\\Application\\msedge.exe',
     'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
+    '/usr/bin/chromium', '/usr/bin/chromium-browser', '/usr/bin/google-chrome',
   ];
   return c.find(fs.existsSync);
 }
@@ -67,7 +69,7 @@ async function toPdf(md, folder, baseName) {   // baseName: file name without .p
   const { marked } = await import('marked');
   const html = `<!doctype html><html><head><meta charset="utf-8"><title>Resume</title><style>
     @page { size: A4; margin: 14mm 16mm; }
-    body { font-family: Calibri, Arial, sans-serif; font-size: 10.5pt; line-height: 1.35; color: #000; }
+    body { font-family: Calibri, Carlito, Arial, 'Liberation Sans', sans-serif; font-size: 10.5pt; line-height: 1.35; color: #000; }
     h1 { font-size: 18pt; margin: 0 0 2px; } h2 { font-size: 12pt; border-bottom: 1px solid #000; margin: 12px 0 4px; text-transform: uppercase; }
     h3 { font-size: 10.5pt; margin: 8px 0 2px; } p { margin: 2px 0; } ul { margin: 2px 0 4px 18px; padding: 0; } li { margin: 1px 0; }
     a { color: #000; text-decoration: none; }
@@ -77,8 +79,10 @@ async function toPdf(md, folder, baseName) {   // baseName: file name without .p
   fs.writeFileSync(htmlPath, html, 'utf8');
   const browser = edgePath();
   if (!browser) throw new Error('Edge/Chrome not found for PDF rendering');
-  const r = spawnSync(browser, ['--headless', '--disable-gpu', '--no-pdf-header-footer',
-    `--print-to-pdf=${pdfPath}`, `file:///${htmlPath.replace(/\\/g, '/')}`], { timeout: 120000 });
+  // On Linux servers Chromium's sandbox is blocked for normal users (Ubuntu 24.04); the page is our own resume HTML.
+  const linux = process.platform === 'linux' ? ['--no-sandbox', '--disable-dev-shm-usage'] : [];
+  const r = spawnSync(browser, ['--headless', '--disable-gpu', '--no-pdf-header-footer', ...linux,
+    `--print-to-pdf=${pdfPath}`, require('url').pathToFileURL(htmlPath).href], { timeout: 120000 });
   if (!fs.existsSync(pdfPath)) throw new Error('PDF render failed: ' + (r.stderr || '').toString().slice(-300));
   return pdfPath;
 }
